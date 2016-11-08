@@ -29,7 +29,7 @@ class Dp_Theme_Helper_Admin {
 	 *
 	 * @since    1.0.0
 	 * @access   private
-	 * @var      string    $plugin_name    The ID of this plugin.
+	 * @var      string $plugin_name The ID of this plugin.
 	 */
 	private $plugin_name;
 
@@ -43,7 +43,7 @@ class Dp_Theme_Helper_Admin {
 	 *
 	 * @since    1.0.0
 	 * @access   private
-	 * @var      string    $version    The current version of this plugin.
+	 * @var      string $version The current version of this plugin.
 	 */
 	private $version;
 
@@ -51,8 +51,9 @@ class Dp_Theme_Helper_Admin {
 	 * Initialize the class and set its properties.
 	 *
 	 * @since    1.0.0
-	 * @param      string    $plugin_name       The name of this plugin.
-	 * @param      string    $version    The version of this plugin.
+	 *
+	 * @param      string $plugin_name The name of this plugin.
+	 * @param      string $version The version of this plugin.
 	 */
 	public function __construct( $plugin_name, $version ) {
 
@@ -61,15 +62,15 @@ class Dp_Theme_Helper_Admin {
 		$this->logger = $log;
 
 		$this->plugin_name = $plugin_name;
-		$this->version = $version;
+		$this->version     = $version;
 		$this->perform_actions();
 	}
 
-	private function perform_actions(){
-		if(isset($_GET['page']) && $_GET['page'] == 'dp-theme-helper'){
-			if(isset($_GET['action'])){
+	private function perform_actions() {
+		if ( isset( $_GET['page'] ) && $_GET['page'] == 'dp-theme-helper' ) {
+			if ( isset( $_GET['action'] ) ) {
 				$action = $_GET['action'];
-				switch($action){
+				switch ( $action ) {
 					case 'update':
 						$this->updateCachedSettings();
 						break;
@@ -80,42 +81,43 @@ class Dp_Theme_Helper_Admin {
 		}
 	}
 
-	private function updateCachedSettings(){
-		array_push($this->message_queue, array(
+	private function updateCachedSettings() {
+		array_push( $this->message_queue, array(
 			'text' => 'updated JSON',
 			'type' => 'info'
-		));
+		) );
 	}
 
-	private function render_message($message_meta){
-		switch($message_meta['type']){
+	private function render_message( $message_meta ) {
+		switch ( $message_meta['type'] ) {
 			case 'info':
 			case 'error':
 			case 'warning':
 			case 'success':
-				$class_name = 'notice-'.$message_meta['type'];
+				$class_name = 'notice-' . $message_meta['type'];
 				break;
 			default:
 				$class_name = 'notice-info';
 				break;
 		}
-		return sprintf("<div class='notice %s is-dismissible'><p>%s</p></div>", $class_name, _($message_meta['text']));
+
+		return sprintf( "<div class='notice %s is-dismissible'><p>%s</p></div>", $class_name, _( $message_meta['text'] ) );
 	}
 
-	public function get_messages(){
+	public function get_messages() {
 		return $this->message_queue;
 	}
 
 
-	public function print_messages(){
+	public function print_messages() {
 
-		foreach($this->get_messages() as $message_meta){
-			switch($message_meta['type']){
+		foreach ( $this->get_messages() as $message_meta ) {
+			switch ( $message_meta['type'] ) {
 				case 'info':
 				case 'warning':
 				case 'error':
 				case 'success':
-					echo $this->render_message($message_meta);
+					echo $this->render_message( $message_meta );
 					break;
 				default:
 					break;
@@ -201,16 +203,16 @@ class Dp_Theme_Helper_Admin {
 	}
 
 
-	private function add_setting( $option_name, $label = "New Option", $type = 'text', $callback=false ) {
+	private function add_setting( $option_name, $label = "New Option", $type = 'text', $callback = false ) {
 
 		$input_type              = strtolower( $type );
 		$option_namespace_suffix = $this->generate_option_namespace_suffix( $option_name );
 		$option_lookup_name      = $this->option_namespace . $option_namespace_suffix;
-		if($callback){
+		if ( $callback ) {
 			register_setting(
 				$this->plugin_name,
 				$this->option_namespace . $option_namespace_suffix,
-				array($this, $callback)
+				array( $this, $callback )
 			);
 		} else {
 			register_setting(
@@ -248,10 +250,24 @@ class Dp_Theme_Helper_Admin {
 
 		$this->add_setting( 'test', "Test" );
 		$this->add_setting( 'test-textarea', "Test (textarea)", 'textarea' );
-		$this->add_setting( 'isCached', "Cache Pages", 'checkbox', 'sanitize_checkbox' );
 
-		register_setting( $this->plugin_name, $this->option_namespace . '_tokenExpiration' );
-		register_setting( $this->plugin_name, $this->option_namespace . '_token' );
+		$theme_settings = apply_filters( 'dp_theme_text', array() );
+
+		foreach ( $theme_settings as $theme_setting ) {
+			$slug     = $theme_setting['slug'];
+			$label    = $theme_setting['label'] ? $theme_setting['label'] : 'Option';
+			$type     = isset( $theme_setting['type'] ) ? $theme_setting['type'] : 'text';
+			$callback = null;
+			switch ( $type ) {
+				case 'checkbox':
+					$callback = 'sanitize_checkbox';
+					break;
+				default:
+					break;
+			}
+			$this->logger->addInfo( 'adding setting', $theme_setting );
+			$this->add_setting( $slug, $label, $type, $callback );
+		}
 	}
 
 	/**
@@ -263,9 +279,10 @@ class Dp_Theme_Helper_Admin {
 		include_once 'partials/dp-theme-helper-admin-heading.php';
 	}
 
-	public function sanitize_checkbox($val){
-		$this->logger->addInfo('sanitizing checkbox', array(func_get_args(), (isset($val))));
-		return (isset($val)) ? 1 : 0;
+	public function sanitize_checkbox( $val ) {
+		$this->logger->addInfo( 'sanitizing checkbox', array( func_get_args(), ( isset( $val ) ) ) );
+
+		return ( isset( $val ) ) ? 1 : 0;
 	}
 
 	/**
@@ -279,7 +296,7 @@ class Dp_Theme_Helper_Admin {
 		echo '<input type="checkbox" name="' . $option_name
 		     . '" id="' . $option_name
 		     . '" value="' . $option_value
-		     . '" '. ($option_value ? 'checked' : '')
+		     . '" ' . ( $option_value ? 'checked' : '' )
 		     . '/> ';
 	}
 
