@@ -1,0 +1,14 @@
+{
+    "name": "dpdev/dp-theme-helper",
+    "description": "WordPress plugin for DPPAD",
+    "require-dev": {
+        "monolog/monolog": "^1.21"
+    },
+    "authors": [
+        {
+            "name": "Khalid Hoffman",
+            "email": "khalidhoffman@gmail.com"
+        }
+    ],
+    "require": {}
+}

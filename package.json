@@ -1,0 +1,25 @@
+{
+  "name": "dp-theme-helper",
+  "version": "0.0.2",
+  "description": "Helper plugin for DPPAD",
+  "main": "index.php",
+  "scripts": {
+    "test": "jasmine",
+    "setup": "dp-setup"
+  },
+  "repository": {
+    "type": "git",
+    "url": "ssh://dppadcom@dppad.com:/home/dppadcom/git/dp-theme-helper.git"
+  },
+  "keywords": [
+    "DPPAD",
+    "WordPress",
+    "theme",
+    "plugin"
+  ],
+  "author": "Khalid Hoffman",
+  "license": "ISC",
+  "devDependencies": {
+    "gulp-utils": "git+https://github.com/khalidhoffman/gulp-utils.git#dev"
+  }
+}

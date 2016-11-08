@@ -1,0 +1,75 @@
+{
+  "name": "dp-theme-helper",
+  "basePath" : "default",
+  "tasks" : [
+    {
+      "name" : "pug-ejs",
+      "input": "js/src/modules/views/html/",
+      "output": "js/src/modules/views/"
+    },
+    {
+      "name" : "pug-php",
+      "input": "admin/pug/",
+      "output": "admin/partials/"
+    },
+    {
+      "name" : "pug-php",
+      "input": "puglic/pug/",
+      "output": "public/partials/"
+    },
+    {
+      "name" : "pug-beautify",
+      "input": "pug/"
+    },
+    {
+      "name" : "jade-php",
+      "input": "jade/",
+      "output": "./"
+    },
+    {
+      "name" : "js",
+      "input": "js/src/",
+      "ignore" : ["**/node_modules/**", "**/vendors/**"]
+    },
+    {
+      "name" : "js-config",
+      "input": "js/src/pages/",
+      "output": "js/src/modules/"
+    },
+    {
+      "name" : "js-bundle",
+      "input": "js/src/build.js",
+      "output": "js/"
+    },
+    {
+      "name" : "jsx",
+      "input": "js/src/",
+      "ignore" : ["**/node_modules/**", "**/vendors/**"]
+    },
+    {
+      "name" : "stylus-bem",
+      "input": "admin/stylus/",
+      "output": "admin/css/"
+    },
+    {
+      "name": "sass",
+      "input": "sass/",
+      "output": "stylesheets/"
+    },
+    {
+      "name": "less",
+      "input": "less/",
+      "output": "stylesheets/"
+    },
+    {
+      "name": "html-2-pug",
+      "input": "/",
+      "output": "pug/"
+    },
+    {
+      "name": "php-2-pug",
+      "input": "/",
+      "output": "pug/"
+    }
+  ]
+}
