@@ -75,7 +75,29 @@ class Dp_Theme_Helper {
 		$this->set_locale();
 		$this->define_admin_hooks();
 		$this->define_public_hooks();
+		$this->define_api();
+	}
 
+	public function define_api(){
+		if (!function_exists('add_theme_text')){
+			function add_theme_text( $label, $slug = null, $type='text' ) {
+
+				$dp_text = new DP_Text( $label, $slug, $type );
+
+				add_filter( 'dp_theme_text', array( $dp_text, 'register' ) );
+
+			}
+		}
+
+		if (!function_exists('get_theme_text')){
+			function get_theme_text( $slug = null, $label = '' ) {
+
+				if ( $slug == null ) {
+					$slug = sanitize_title_with_dashes( $label );
+				}
+				return get_option('dp_theme_helper_'.$slug);
+			}
+		}
 	}
 
 	/**
