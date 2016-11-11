@@ -35,7 +35,7 @@ class Dp_Theme_Helper {
 	 *
 	 * @since    1.0.0
 	 * @access   protected
-	 * @var      Dp_Theme_Helper_Loader    $loader    Maintains and registers all hooks for the plugin.
+	 * @var      Dp_Theme_Helper_Loader $loader Maintains and registers all hooks for the plugin.
 	 */
 	protected $loader;
 
@@ -44,7 +44,7 @@ class Dp_Theme_Helper {
 	 *
 	 * @since    1.0.0
 	 * @access   protected
-	 * @var      string    $plugin_name    The string used to uniquely identify this plugin.
+	 * @var      string $plugin_name The string used to uniquely identify this plugin.
 	 */
 	protected $plugin_name;
 
@@ -53,7 +53,7 @@ class Dp_Theme_Helper {
 	 *
 	 * @since    1.0.0
 	 * @access   protected
-	 * @var      string    $version    The current version of the plugin.
+	 * @var      string $version The current version of the plugin.
 	 */
 	protected $version;
 
@@ -69,7 +69,7 @@ class Dp_Theme_Helper {
 	public function __construct() {
 
 		$this->plugin_name = 'dp-theme-helper';
-		$this->version = '1.0.0';
+		$this->version     = '1.0.0';
 
 		$this->load_dependencies();
 		$this->set_locale();
@@ -78,9 +78,9 @@ class Dp_Theme_Helper {
 		$this->define_api();
 	}
 
-	public function define_api(){
-		if (!function_exists('add_theme_text')){
-			function add_theme_text( $label, $slug = null, $type='text' ) {
+	public function define_api() {
+		if ( ! function_exists( 'add_theme_text' ) ) {
+			function add_theme_text( $label, $slug = null, $type = 'text' ) {
 
 				$dp_text = new DP_Text( $label, $slug, $type );
 
@@ -89,13 +89,24 @@ class Dp_Theme_Helper {
 			}
 		}
 
-		if (!function_exists('get_theme_text')){
+		if ( ! function_exists( 'add_theme_textarea' ) ) {
+			function add_theme_textarea( $label, $slug = null, $type = 'textarea' ) {
+
+				$dp_text = new DP_Text( $label, $slug, $type );
+
+				add_filter( 'dp_theme_text', array( $dp_text, 'register' ) );
+
+			}
+		}
+
+		if ( ! function_exists( 'get_theme_text' ) ) {
 			function get_theme_text( $slug = null, $label = '' ) {
 
 				if ( $slug == null ) {
 					$slug = sanitize_title_with_dashes( $label );
 				}
-				return get_option('dp_theme_helper_'.$slug);
+
+				return get_option( 'dp_theme_helper_' . $slug );
 			}
 		}
 	}

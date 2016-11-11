@@ -248,9 +248,6 @@ class Dp_Theme_Helper_Admin {
 			$this->plugin_name
 		);
 
-		$this->add_setting( 'test', "Test" );
-		$this->add_setting( 'test-textarea', "Test (textarea)", 'textarea' );
-
 		$theme_settings = apply_filters( 'dp_theme_text', array() );
 
 		foreach ( $theme_settings as $theme_setting ) {
