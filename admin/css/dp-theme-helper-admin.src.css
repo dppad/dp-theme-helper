@@ -13,6 +13,7 @@
 .setting-section--vars .form-table tr textarea {
   display: inline-block;
   vertical-align: middle;
+  width: 100%;
 }
 @-moz-keyframes highlight {
   0% {
