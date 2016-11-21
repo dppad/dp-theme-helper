@@ -1,1 +1,0 @@
-<div class="settings-heading"><div class="settings-heading__wrap"><div class="settings-heading__content"><p>These settings are under development.</p></div></div></div>
