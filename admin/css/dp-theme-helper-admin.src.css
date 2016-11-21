@@ -1,0 +1,48 @@
+.setting-section--vars .form-table tr.highlight {
+  -webkit-animation: highlight 2000ms ease;
+  animation: highlight 2000ms ease;
+}
+.setting-section--vars .form-table tr td {
+  white-space: nowrap;
+}
+.setting-section--vars .form-table tr a {
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 0.5em;
+}
+.setting-section--vars .form-table tr textarea {
+  display: inline-block;
+  vertical-align: middle;
+}
+@-moz-keyframes highlight {
+  0% {
+    background-color: #ffff40;
+  }
+  100% {
+    background-color: tranparent;
+  }
+}
+@-webkit-keyframes highlight {
+  0% {
+    background-color: #ffff40;
+  }
+  100% {
+    background-color: tranparent;
+  }
+}
+@-o-keyframes highlight {
+  0% {
+    background-color: #ffff40;
+  }
+  100% {
+    background-color: tranparent;
+  }
+}
+@keyframes highlight {
+  0% {
+    background-color: #ffff40;
+  }
+  100% {
+    background-color: tranparent;
+  }
+}

@@ -1,4 +1,1 @@
-/**
- * All of the CSS for your admin-specific functionality should be
- * included in this file.
- */
+.setting-section--vars .form-table tr.highlight{-webkit-animation:a 2s ease;animation:a 2s ease}.setting-section--vars .form-table tr td{white-space:nowrap}.setting-section--vars .form-table tr a{margin-right:.5em}.setting-section--vars .form-table tr a,.setting-section--vars .form-table tr textarea{display:inline-block;vertical-align:middle}@-webkit-keyframes a{0%{background-color:#ffff40}to{background-color:tranparent}}@keyframes a{0%{background-color:#ffff40}to{background-color:tranparent}}

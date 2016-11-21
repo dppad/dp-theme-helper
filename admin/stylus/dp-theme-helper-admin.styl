@@ -1,0 +1,24 @@
+@keyframes highlight{
+  0%{
+    background-color lighten(yellow, 25%)
+  }
+
+  100%{
+    background-color tranparent
+  }
+}
+.setting-section
+  &--vars
+    .form-table
+      tr
+        &.highlight
+          animation highlight 2000ms $timing-transition-default
+        td
+          white-space: nowrap
+        a
+          display inline-block
+          vertical-align middle
+          margin-right .5em
+        textarea
+          display inline-block
+          vertical-align middle

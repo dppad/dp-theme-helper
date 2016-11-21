@@ -227,7 +227,7 @@ class Dp_Theme_Helper_Admin {
 			case 'checkbox':
 				add_settings_field(
 					$option_lookup_name,
-					__( $label, $this->plugin_text_namespace ),
+					"<a href='#" . $option_lookup_name . "'>" . __( $label, $this->plugin_text_namespace ) . "</a>",
 					array( $this, $this->option_namespace . '_' . strtolower( $type ) . '_cb' ),
 					$this->plugin_name,
 					$this->option_namespace . $this->generate_option_namespace_suffix( $this->main_settings_option_name ),
