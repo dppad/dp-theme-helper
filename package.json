@@ -1,6 +1,6 @@
 {
   "name": "dp-theme-helper",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "Helper plugin for DPPAD",
   "main": "index.php",
   "scripts": {

@@ -8,5 +8,8 @@ include _auto-generated/_-all
                 form.setting-form(action="options.php" method="post")
                     :php
                         settings_fields($this->plugin_name);
+                        foreach($this->text_sections as $text_section){
+                            settings_fields($text_section);
+                        }
                         do_settings_sections($this->plugin_name);
                         submit_button();

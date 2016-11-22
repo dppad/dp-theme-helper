@@ -99,6 +99,22 @@ class Dp_Theme_Helper {
 			}
 		}
 
+		if ( ! function_exists( 'add_section_theme_textarea' ) ) {
+			function add_section_theme_textarea( $section_name, $field_name = null, $slug = null, $type = 'textarea' ) {
+
+				$dp_text = new DP_Section_Text( $section_name, $field_name, $slug, $type );
+
+				add_filter( 'dp_theme_text_sections', array( $dp_text, 'register' ) );
+
+			}
+		}
+
+		if ( ! function_exists( 'get_section_theme_text' ) ) {
+			function get_section_theme_text( $section_name, $label = '' ) {
+				return get_option( sanitize_title_with_dashes( 'dp_theme_helper_' . $section_name . ' ' . $label ) );
+			}
+		}
+
 		if ( ! function_exists( 'get_theme_text' ) ) {
 			function get_theme_text( $slug = null, $label = '' ) {
 
