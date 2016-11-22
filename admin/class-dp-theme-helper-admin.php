@@ -1,6 +1,6 @@
 <?php
 use Monolog\Logger;
-use Monolog\Handler\ChromePHPHandler;
+use Monolog\Handler\StreamHandler;
 
 /**
  * The admin-specific functionality of the plugin.
@@ -59,7 +59,7 @@ class Dp_Theme_Helper_Admin {
 	public function __construct( $plugin_name, $version ) {
 
 		$log = new Logger( 'dp_theme_helper_admin_log' );
-		$log->pushHandler( new ChromePHPHandler( Logger::INFO ) );
+		$log->pushHandler( new StreamHandler( dirname( __DIR__ . '/../../' ) . "/data/dev.log", Logger::INFO ) );
 		$this->logger = $log;
 
 
