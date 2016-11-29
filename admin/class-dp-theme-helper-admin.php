@@ -1,7 +1,7 @@
 <?php
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
-use Monolog\Handler\ChromePHPHandler;
+//use Monolog\Handler\ChromePHPHandler;
 
 require_once dirname( __DIR__ ) . "/includes/class-dp-theme-helper-option.php";
 
@@ -62,8 +62,8 @@ class Dp_Theme_Helper_Admin {
 	public function __construct( $plugin_name, $version ) {
 
 		$log = new Logger( 'dp_theme_helper_admin_log' );
-//		$log->pushHandler( new StreamHandler( dirname( __DIR__ . '/../../' ) . "/data/dev.log", Logger::INFO ) );
-		$log->pushHandler( new ChromePHPHandler( Logger::INFO ) );
+		$log->pushHandler( new StreamHandler( dirname( __DIR__ . '/../../' ) . "/dev.log", Logger::INFO ) );
+//		$log->pushHandler( new ChromePHPHandler( Logger::INFO ) );
 		$this->logger = $log;
 
 
