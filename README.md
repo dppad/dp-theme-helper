@@ -12,5 +12,5 @@
 
 
 ## TODO
--[ ] Add ability to remove registered text
--[ ] Implement default text values
+- [ ] Add ability to remove registered text
+- [ ] Implement default text values
