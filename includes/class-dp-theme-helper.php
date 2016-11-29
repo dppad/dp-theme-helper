@@ -79,52 +79,23 @@ class Dp_Theme_Helper {
 	}
 
 	public function define_api() {
+
 		if ( ! function_exists( 'add_theme_text' ) ) {
-			function add_theme_text( $label, $slug = null, $type = 'text' ) {
+			function add_theme_text( $section_name, $field_name = null, $type = 'textarea' ) {
+				$dp_text = new DP_Text( $section_name, $field_name, $type );
+				add_filter( 'dp_theme_text', array( $dp_text, 'register_by_filter' ) );
 
-				$dp_text = new DP_Text( $label, $slug, $type );
-
-				add_filter( 'dp_theme_text', array( $dp_text, 'register' ) );
-
-			}
-		}
-
-		if ( ! function_exists( 'add_theme_textarea' ) ) {
-			function add_theme_textarea( $label, $slug = null, $type = 'textarea' ) {
-
-				$dp_text = new DP_Text( $label, $slug, $type );
-
-				add_filter( 'dp_theme_text', array( $dp_text, 'register' ) );
-
-			}
-		}
-
-		if ( ! function_exists( 'add_section_theme_textarea' ) ) {
-			function add_section_theme_textarea( $section_name, $field_name = null, $slug = null, $type = 'textarea' ) {
-
-				$dp_text = new DP_Section_Text( $section_name, $field_name, $slug, $type );
-
-				add_filter( 'dp_theme_text_sections', array( $dp_text, 'register' ) );
-
-			}
-		}
-
-		if ( ! function_exists( 'get_section_theme_text' ) ) {
-			function get_section_theme_text( $section_name, $label = '' ) {
-				return get_option( sanitize_title_with_dashes( 'dp_theme_helper_' . $section_name . ' ' . $label ) );
 			}
 		}
 
 		if ( ! function_exists( 'get_theme_text' ) ) {
-			function get_theme_text( $slug = null, $label = '' ) {
-
-				if ( $slug == null ) {
-					$slug = sanitize_title_with_dashes( $label );
-				}
-
-				return get_option( 'dp_theme_helper_' . $slug );
+			function get_theme_text( $section_name, $field_name = null, $type = 'textarea' ) {
+				$dp_text = new DP_Text( $section_name, $field_name, $type );
+				$dp_text->register();
+				return $dp_text->get_value();
 			}
 		}
+
 	}
 
 	/**
@@ -201,7 +172,7 @@ class Dp_Theme_Helper {
 	private function define_admin_hooks() {
 
 		$plugin_admin = new Dp_Theme_Helper_Admin( $this->get_plugin_name(), $this->get_version() );
-		$this->loader->add_action( 'admin_init', $plugin_admin, 'register_settings' );
+		$this->loader->add_action( 'admin_init', $plugin_admin, 'register_theme_text' );
 		$this->loader->add_action( 'admin_menu', $plugin_admin, 'add_options_page' );
 		$this->loader->add_action( 'admin_notices', $plugin_admin, 'print_messages' );
 

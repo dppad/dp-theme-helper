@@ -1,6 +1,9 @@
 <?php
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
+use Monolog\Handler\ChromePHPHandler;
+
+require_once dirname( __DIR__ ) . "/includes/class-dp-theme-helper-option.php";
 
 /**
  * The admin-specific functionality of the plugin.
@@ -33,7 +36,7 @@ class Dp_Theme_Helper_Admin {
 	 */
 	private $plugin_name;
 
-	private $option_namespace = 'dp_theme_helper';
+	private $callback_namespace = 'dp_theme_helper_';
 	private $plugin_text_namespace = 'dp_theme_helper';
 	private $main_settings_option_name = 'general';
 	private $message_queue = array();
@@ -59,7 +62,8 @@ class Dp_Theme_Helper_Admin {
 	public function __construct( $plugin_name, $version ) {
 
 		$log = new Logger( 'dp_theme_helper_admin_log' );
-		$log->pushHandler( new StreamHandler( dirname( __DIR__ . '/../../' ) . "/data/dev.log", Logger::INFO ) );
+//		$log->pushHandler( new StreamHandler( dirname( __DIR__ . '/../../' ) . "/data/dev.log", Logger::INFO ) );
+		$log->pushHandler( new ChromePHPHandler( Logger::INFO ) );
 		$this->logger = $log;
 
 
@@ -84,9 +88,13 @@ class Dp_Theme_Helper_Admin {
 	}
 
 	private function updateCachedSettings() {
+		$this->add_message( "Updated JSON" );
+	}
+
+	private function add_message( $text, $type = 'info' ) {
 		array_push( $this->message_queue, array(
-			'text' => 'updated JSON',
-			'type' => 'info'
+			'text' => $text,
+			'type' => $type
 		) );
 	}
 
@@ -113,7 +121,8 @@ class Dp_Theme_Helper_Admin {
 
 	public function print_messages() {
 
-		foreach ( $this->get_messages() as $message_meta ) {
+		while ( sizeof( $this->message_queue ) > 0 ) {
+			$message_meta = array_pop( $this->message_queue );
 			switch ( $message_meta['type'] ) {
 				case 'info':
 				case 'warning':
@@ -122,6 +131,7 @@ class Dp_Theme_Helper_Admin {
 					echo $this->render_message( $message_meta );
 					break;
 				default:
+					$this->logger->addInfo( 'Invalid message type received', $message_meta );
 					break;
 			}
 		}
@@ -199,32 +209,29 @@ class Dp_Theme_Helper_Admin {
 		require_once 'partials/dp-theme-helper-admin-display.php';
 	}
 
-
-	private function generate_option_namespace_suffix( $option_name ) {
-		return '_' . sanitize_title_with_dashes( $option_name );
+	/**
+	 * Render the text for the general section
+	 *
+	 * @since  1.0.0
+	 */
+	public function options_heading( $meta_data ) {
+//		include 'partials/dp-theme-helper-admin-heading.php';
 	}
 
+	private function add_setting( $option_name, $field_name = "New Option", $type = 'textarea', $callback = false ) {
 
-	public function generate_option_name( $section_name, $option_name ) {
-		return sanitize_title_with_dashes( $section_name . ' ' . $option_name );
-	}
-
-
-	private function add_setting( $option_name, $label = "New Option", $type = 'text', $callback = false ) {
-
-		$input_type              = strtolower( $type );
-		$option_namespace_suffix = $this->generate_option_namespace_suffix( $option_name );
-		$option_lookup_name      = $this->option_namespace . $option_namespace_suffix;
+		$input_type = strtolower( $type );
+		$option     = new DP_Option( $option_name );
 		if ( $callback ) {
 			register_setting(
 				$this->plugin_name,
-				$this->option_namespace . $option_namespace_suffix,
+				$option->get_namespace(),
 				array( $this, $callback )
 			);
 		} else {
 			register_setting(
 				$this->plugin_name,
-				$this->option_namespace . $option_namespace_suffix
+				$option->get_namespace()
 			);
 		}
 
@@ -233,12 +240,12 @@ class Dp_Theme_Helper_Admin {
 			case 'textarea':
 			case 'checkbox':
 				add_settings_field(
-					$option_lookup_name,
-					"<a href='#" . $option_lookup_name . "'>" . __( $label, $this->plugin_text_namespace ) . "</a>",
-					array( $this, $this->option_namespace . '_' . strtolower( $type ) . '_cb' ),
+					$option->namespace,
+					"<a href='#" . $option->namespace . "'>" . __( $field_name, $this->plugin_text_namespace ) . "</a>",
+					array( $this, $this->callback_namespace . strtolower( $type ) . '_cb' ),
 					$this->plugin_name,
-					$this->option_namespace . $this->generate_option_namespace_suffix( $this->main_settings_option_name ),
-					array( 'name' => $option_lookup_name, 'label' => $label )
+					$this->callback_namespace . $this->main_settings_option_name,
+					array( 'name' => $option->namespace, 'field_name' => $field_name )
 				);
 				break;
 			default:
@@ -247,132 +254,30 @@ class Dp_Theme_Helper_Admin {
 		}
 	}
 
-	public function register_settings() {
+	public function register_theme_text() {
 
-		$theme_settings         = apply_filters( 'dp_theme_text', array() );
-		$theme_section_settings = apply_filters( 'dp_theme_text_sections', array() );
+		$theme_text_sections = apply_filters( 'dp_theme_text', array() );
 
 
-		$this->parse_theme_settings( $theme_settings );
-		$this->parse_theme_section_settings( $theme_section_settings );
+		$cached_theme_text_sections_str = get_option( 'dp_theme_text_cache' );
+		$cached_theme_text_sections     = json_decode( $cached_theme_text_sections_str );
+		$this->logger->addInfo( 'cached', array( $cached_theme_text_sections ) );
+
+		$this->parse_theme_text_sections( $cached_theme_text_sections );
 	}
 
 
-	private function parse_theme_settings( $theme_settings ) {
-		add_settings_section(
-			$this->option_namespace . $this->generate_option_namespace_suffix( $this->main_settings_option_name ),
-			__( 'General', $this->plugin_text_namespace ),
-			array( $this, 'options_heading' ),
-			$this->plugin_name
-		);
-
-		foreach ( $theme_settings as $theme_setting ) {
-			$slug     = $theme_setting['slug'];
-			$label    = $theme_setting['label'] ? $theme_setting['label'] : 'Option';
-			$type     = isset( $theme_setting['type'] ) ? $theme_setting['type'] : 'text';
-			$callback = null;
-			switch ( $type ) {
-				case 'checkbox':
-					$callback = 'sanitize_checkbox';
-					break;
-				default:
-					break;
-			}
-			$this->add_setting( $slug, $label, $type, $callback );
-		}
-	}
-
-	private function add_settings_from_args( $section_name, $args = array() ) {
-		$this->logger->addInfo( 'received section setting @ ' . $section_name, $args );
-		$option_name = $args['slug'];
-		$label       = $args['label'];
-		$type        = $args['type'];
-		$callback    = false;
-
-		$input_type              = strtolower( $type );
-		$option_lookup_name      = $this->generate_option_name( $section_name, $option_name );
-
-		$this->logger->addInfo( 'registering setting w/', array(
-			$section_name,
-			$option_lookup_name,
-			$callback
-		));
-		if ( $callback ) {
-			register_setting(
-				$section_name,
-				$option_lookup_name,
-				array( $this, $callback )
-			);
-		} else {
-			register_setting(
-				$section_name,
-				$option_lookup_name
-			);
-		}
-
-		$this->logger->addInfo( 'adding section setting', array(
-			$option_lookup_name,
-			"<a href='#" . $option_lookup_name . "'>" . __( $label, $this->plugin_text_namespace ) . "</a>",
-			array( $this, $this->option_namespace . '_' . $input_type . '_cb' ),
-			$this->plugin_name,
-			$section_name,
-			array( 'name' => $option_lookup_name, 'label' => $label )
-		) );
-		switch ( $input_type ) {
-			case 'text':
-			case 'textarea':
-			case 'checkbox':
-				add_settings_field(
-					$option_lookup_name,
-					"<a href='#" . $option_lookup_name . "'>" . __( $label, $this->plugin_text_namespace ) . "</a>",
-					array( $this, $this->option_namespace . '_' . $input_type . '_cb' ),
-					$this->plugin_name,
-					$section_name,
-					array( 'name' => $option_lookup_name, 'label' => $label )
-				);
-				break;
-			default:
-				error_log( 'dp-theme-helper.admin received an invalid input type:' . $type );
-				break;
-		}
-	}
-
-	private function add_settings_section_from_args( $args = array() ) {
-		$section_name  = $args['section_name'];
-		$section_title = $args['section_label'];
-		$settings      = $args['settings'];
-		$section_slug  = $this->option_namespace . $this->generate_option_namespace_suffix( $section_name );
-
-		array_push( $this->text_sections, $section_slug );
-		$settings_section_args = array(
-			$section_slug,
-			__( $section_title, $this->plugin_text_namespace ),
-			array( $this, 'options_heading' ),
-			$this->plugin_name
-		);
-		$this->logger->addInfo( 'adding setting section', $settings_section_args );
-		add_settings_section(
-			$section_slug,
-			__( $section_title, $this->plugin_text_namespace ),
-			array( $this, 'options_heading' ),
-			$this->plugin_name
-		);
-
-		foreach ( $settings as $setting ) {
-			$this->add_settings_from_args( $section_slug, $setting );
-		}
-	}
-
-	private function parse_theme_section_settings( $theme_section_settings ) {
-		$this->logger->addInfo( 'parsing: ', $theme_section_settings );
-		foreach ( $theme_section_settings as $theme_section_setting ) {
+	private function parse_theme_text_sections( $theme_section_settings ) {
+		$this->logger->addInfo( 'parsing: ', array($theme_section_settings) );
+		foreach ( $theme_section_settings as $theme_section_name => $theme_section_setting ) {
 			$settings = array();
 
-			foreach ( $theme_section_setting['settings'] as $theme_setting ) {
-				$slug     = $theme_setting['slug'];
-				$label    = $theme_setting['label'] ? $theme_setting['label'] : 'Option';
-				$type     = isset( $theme_setting['type'] ) ? $theme_setting['type'] : 'text';
-				$callback = null;
+			foreach ( $theme_section_setting as $theme_setting_name => $theme_setting_type ) {
+				$setting_option = new DP_Text_Option($theme_section_name, $theme_setting_name);
+				$slug       = $setting_option->get_namespace();
+				$field_name = $theme_setting_name;
+				$type       = $theme_setting_type;
+				$callback   = null;
 				switch ( $type ) {
 					case 'checkbox':
 						$callback = 'sanitize_checkbox';
@@ -381,31 +286,82 @@ class Dp_Theme_Helper_Admin {
 						break;
 				}
 				array_push( $settings, array(
-					'slug'     => $slug,
-					'label'    => $label,
-					'type'     => $type,
-					'callback' => null
+					'slug'       => $slug,
+					'field_name' => $field_name,
+					'type'       => $type,
+					'callback'   => null
 				) );
 			}
 
 			$result = array(
-				'section_name'  => sanitize_title_with_dashes( $theme_section_setting['name'] ),
-				'section_label' => $theme_section_setting['name'],
+				'section_name'  => sanitize_title_with_dashes( $theme_section_name ),
+				'section_label' => $theme_section_name,
 				'settings'      => $settings
 			);
-			$this->logger->addInfo( 'result: ', $result );
-			$this->add_settings_section_from_args( $result );
+			$this->logger->addInfo( 'text_section', $result );
+			$this->build_text_sections( $result );
 		}
 	}
 
-	/**
-	 * Render the text for the general section
-	 *
-	 * @since  1.0.0
-	 */
-	public function options_heading() {
-		include_once 'partials/dp-theme-helper-admin-heading.php';
+	private function build_text_sections( $args = array() ) {
+		$section_name  = $args['section_name'];
+		$section_title = $args['section_label'];
+		$settings      = $args['settings'];
+		$section_slug  = $this->callback_namespace . sanitize_title_with_dashes( $section_name );
+
+		array_push( $this->text_sections, $section_slug );
+		add_settings_section(
+			$section_slug,
+			__( $section_title, $this->plugin_text_namespace ),
+			array( $this, 'options_heading' ),
+			$this->plugin_name
+		);
+
+		foreach ( $settings as $setting ) {
+			$this->add_section_input( $section_slug, $setting );
+		}
 	}
+
+	private function add_section_input( $section_slug, $args = array() ) {
+		$option_name = $args['slug'];
+		$field_name  = $args['field_name'];
+		$type        = $args['type'];
+		$callback    = false;
+
+		$input_type = strtolower( $type );
+
+		if ( $callback ) {
+			register_setting(
+				$section_slug,
+				$option_name,
+				array( $this, $callback )
+			);
+		} else {
+			register_setting(
+				$section_slug,
+				$option_name
+			);
+		}
+
+		switch ( $input_type ) {
+			case 'text':
+			case 'textarea':
+			case 'checkbox':
+				add_settings_field(
+					$option_name,
+					"<a href='#" . $option_name . "'>" . __( $field_name, $this->plugin_text_namespace ) . "</a>",
+					array( $this, $this->callback_namespace . $input_type . '_cb' ),
+					$this->plugin_name,
+					$section_slug,
+					array( 'name' => $option_name, 'field_name' => $field_name )
+				);
+				break;
+			default:
+				error_log( 'dp-theme-helper.admin received an invalid input type:' . $type );
+				break;
+		}
+	}
+
 
 	public function sanitize_checkbox( $val ) {
 		$this->logger->addInfo( 'sanitizing checkbox', array( func_get_args(), ( isset( $val ) ) ) );

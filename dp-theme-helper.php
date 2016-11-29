@@ -1,5 +1,6 @@
 <?php
 require_once ('vendor/autoload.php');
+define("DP_THEME_TEXT_CACHE", 'dp_theme_text_cache');
 /**
  * The plugin bootstrap file
  *
