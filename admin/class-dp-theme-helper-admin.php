@@ -256,10 +256,10 @@ class Dp_Theme_Helper_Admin {
 
 	public function register_theme_text() {
 
-		$theme_text_sections = apply_filters( 'dp_theme_text', array() );
-
-
 		$cached_theme_text_sections_str = get_option( 'dp_theme_text_cache' );
+		if ($cached_theme_text_sections_str == null){
+			$cached_theme_text_sections_str = "[]";
+		}
 		$cached_theme_text_sections     = json_decode( $cached_theme_text_sections_str );
 		$this->logger->addInfo( 'cached', array( $cached_theme_text_sections ) );
 
